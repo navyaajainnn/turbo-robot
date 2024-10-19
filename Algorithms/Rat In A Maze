@@ -1,0 +1,89 @@
+//This is the solution of the problem Rat in a maze. You can find it here- https://www.geeksforgeeks.org/problems/rat-in-a-maze-problem/1
+
+class Solution {
+  public:
+    // Helper function to check if the next move is valid (inside grid, unvisited, and on a valid path)
+    bool isSafe(int x, int y, vector<vector<int>> &mat, vector<vector<int>> &visited, int n) {
+        // Check if (x, y) is within bounds, not visited, and is a valid cell (mat[x][y] == 1)
+        if (x >= 0 && x < n && y >= 0 && y < n && visited[x][y] == 0 && mat[x][y] == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    // Recursive function to explore all possible paths from the current cell (row, col)
+    void solve(vector<vector<int>> &mat, vector<string> &ans, int row, int col, int n, string &path,
+               vector<vector<int>> &visited) {
+
+        // Base case: If we have reached the bottom-right corner (destination)
+        if (row == n - 1 && col == n - 1) {
+            ans.push_back(path);  // Store the valid path in the answer list
+            return;
+        }
+
+        // Mark the current cell as visited
+        visited[row][col] = 1;
+
+        // Move Down (D): Check if the cell below (row+1, col) is safe to move
+        int newx = row + 1;
+        int newy = col;
+        if (isSafe(newx, newy, mat, visited, n)) {
+            path.push_back('D'); // Append 'D' for Down in the path string
+            solve(mat, ans, newx, newy, n, path, visited); // Recursive call for the next cell
+            path.pop_back(); // Backtrack by removing 'D' when returning
+        }
+
+        // Move Up (U): Check if the cell above (row-1, col) is safe to move
+        newx = row - 1;
+        newy = col;
+        if (isSafe(newx, newy, mat, visited, n)) {
+            path.push_back('U'); // Append 'U' for Up
+            solve(mat, ans, newx, newy, n, path, visited); // Recursive call for the next cell
+            path.pop_back(); // Backtrack by removing 'U'
+        }
+
+        // Move Left (L): Check if the cell to the left (row, col-1) is safe to move
+        newx = row;
+        newy = col - 1;
+        if (isSafe(newx, newy, mat, visited, n)) {
+            path.push_back('L'); // Append 'L' for Left
+            solve(mat, ans, newx, newy, n, path, visited); // Recursive call for the next cell
+            path.pop_back(); // Backtrack by removing 'L'
+        }
+
+        // Move Right (R): Check if the cell to the right (row, col+1) is safe to move
+        newx = row;
+        newy = col + 1;
+        if (isSafe(newx, newy, mat, visited, n)) {
+            path.push_back('R'); // Append 'R' for Right
+            solve(mat, ans, newx, newy, n, path, visited); // Recursive call for the next cell
+            path.pop_back(); // Backtrack by removing 'R'
+        }
+
+        // Unmark the current cell (backtracking)
+        visited[row][col] = 0;
+    }
+
+    // Main function to find all possible paths from the top-left to the bottom-right of the matrix
+    vector<string> findPath(vector<vector<int>> &mat) {
+        vector<string> ans; // To store all valid paths
+        string path = ""; // To keep track of the current path
+        int n = mat.size(); // Get the size of the matrix
+
+        // Edge case: If the starting cell is blocked (mat[0][0] == 0), return an empty list
+        if (mat[0][0] == 0) {
+            return ans;
+        }
+
+        // Create a visited matrix to keep track of visited cells (initialize all to 0)
+        vector<vector<int>> visited(n, vector<int>(n, 0));
+
+        // Start the recursive function from the top-left corner (0, 0)
+        solve(mat, ans, 0, 0, n, path, visited);
+
+        // Sort the paths lexicographically as required
+        sort(ans.begin(), ans.end());
+
+        return ans; // Return all valid paths
+    }
+};
